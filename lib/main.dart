@@ -1,90 +1,43 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
+import 'package:intellimath_replica/presentation/features/main_page/main_page.dart';
+import 'package:provider/provider.dart';
+
+import 'application/providers/_providers.dart';
+
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData.dark(),
-      home: MyHomePage(title: 'IntelliMath'),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key, required this.title}) : super(key: key);
-  final String title;
-
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  static const int KEYS_COUNT = 9;
-  int toBeSummed = 0;
-  List<int> numss = [];
-  List<int> nums = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-
-  void getNums() {
-    toBeSummed = getRandom(10, 20);
-    final int sumWillBeDividedOn = getRandom(2, KEYS_COUNT);
-
-    List<int> numsss = List.filled(sumWillBeDividedOn, 0);
-    int difference = toBeSummed;
-
-    for (int i = 0; i < numsss.length - 1; i++) {
-      numsss[i] = getRandom(0, difference);
-      difference -= numsss[i];
-    }
-
-    numss = List.of(numsss);
-
-    int sum = 0;
-    numss.forEach((num) => sum += num);
-    if (sum < toBeSummed) {
-      numss.last = toBeSummed - sum;
-    }
-    numss.removeWhere((e) => e == 0);
-
-    if (numss.length == KEYS_COUNT) {
-      nums = numss;
-      setState(() {});
-      return;
-    }
-
-    final res = numss +
-        List<int>.generate(
-          KEYS_COUNT - numss.length,
-          (index) => getRandom(1, toBeSummed - 1),
-        );
-    res.shuffle();
-    nums = res;
-    setState(() {});
-    //return res;
-  }
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    getNums();
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(toBeSummed.toString()),
-            Text(numss.toString()),
-            Text(nums.toString()),
-          ],
+    return MultiProvider(
+      providers: getProviders(),
+      child: MaterialApp(
+        title: 'Intellimath',
+        theme: ThemeData.dark().copyWith(
+          canvasColor: Colors.black,
+          scaffoldBackgroundColor: Colors.black,
         ),
+        home: const MainPage(),
+        supportedLocales: const [Locale('en')],
+        localizationsDelegates: getLocalizationsDelegates(),
+        debugShowCheckedModeBanner: false,
       ),
     );
   }
-}
 
-getRandom(int min, int max) => Random().nextInt(max - min) + min;
+  List<LocalizationsDelegate<dynamic>> getLocalizationsDelegates() {
+    return const [
+      AppLocalizations.delegate,
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+    ];
+  }
+}
